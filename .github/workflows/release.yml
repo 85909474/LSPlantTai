@@ -43,11 +43,11 @@ jobs:
           key: ${{ runner.os }}-${{ github.sha }}
           restore-keys: ${{ runner.os }}
 
-      # 与上游 fork CI 同款工具链：NDK r29-beta2（包坐标 29.0.13599879，Pkg.Revision 含 -beta2）+ CMake 4.0.2
+      # tools 包已从 sdkmanager 仓库下架（sdkmanager 直接 exit 1）；NDK r29-beta2 同步升到 r29 稳定版（与 libs.versions.toml 一致）
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: tools ndk;29.0.13599879 cmake;4.0.2
+          packages: ndk;29.0.14206865 cmake;4.0.2
           log-accepted-android-sdk-licenses: false
 
       - name: Build with Gradle
