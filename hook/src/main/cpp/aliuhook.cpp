@@ -155,9 +155,11 @@ JNI_OnLoad(JavaVM *vm, void *) {
         NativeCore::init(static_cast<int>(api_level));
     }
 
-    // ShadowHook 初始化：UNIQUE 模式（每个目标地址只挂一个 hook，确定性最好）。
+    // ShadowHook 初始化：SHARED 模式（默认模式，同地址可串链多个 hook）。
+    // 宿主 app（如抖音 sysoptimizer/npth）会与引擎共用同一个 libshadowhook：
+    // UNIQUE 模式会让宿主后续 hook 拿到 null backup → pc=0 崩溃。
     // debuggable=false：与注入场景一致。
-    if (shadowhook_init(SHADOWHOOK_MODE_UNIQUE, false) != 0) {
+    if (shadowhook_init(SHADOWHOOK_MODE_SHARED, false) != 0) {
         LOGE("shadowhook_init failed");
     } else {
         LOGI("shadowhook ready (mode=%d)", shadowhook_get_mode());
