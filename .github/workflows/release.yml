@@ -43,11 +43,11 @@ jobs:
           key: ${{ runner.os }}-${{ github.sha }}
           restore-keys: ${{ runner.os }}
 
-      # tools 包已从 sdkmanager 仓库下架（sdkmanager 直接 exit 1）；NDK r29-beta2 同步升到 r29 稳定版（与 libs.versions.toml 一致）
+      # tools 包已从 sdkmanager 仓库下架（sdkmanager exit 1），删除；NDK 保持 r29-beta2（v0.1.0 同款工具链，安装包仍在线）
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: ndk;29.0.14206865 cmake;4.0.2
+          packages: ndk;29.0.13599879 cmake;4.0.2
           log-accepted-android-sdk-licenses: false
 
       - name: Build with Gradle

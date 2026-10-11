@@ -5,7 +5,6 @@
  */
 
 #include "profile_saver.h"
-#include <dobby.h>
 #include "aliuhook.h"
 
 #include "log.h"
