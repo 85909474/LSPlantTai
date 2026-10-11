@@ -62,5 +62,5 @@ cmaker {
 }
 
 dependencies {
-    implementation(libs.dobby)
+    implementation(libs.shadowhook)
 }

@@ -7,7 +7,7 @@
 #include <jni.h>
 #include <string>
 #include <lsplant.hpp>
-#include <dobby.h>
+#include <shadowhook.h>
 #include <sys/mman.h>
 #include <bits/sysconf.h>
 #include "elf_img.h"
@@ -50,21 +50,25 @@ static bool Unprotect(void *addr) {
     return true;
 }
 
+// ShadowHook：shadowhook_unhook 直接接受 inline_hooker 返回的 stub（即 LSPlant 的 backup 指针），
+// 与 LSPlant 的 inline_unhooker(func) 语义天然对齐，无需额外映射。
 void *InlineHooker(void *address, void *replacement) {
     if (!Unprotect(address)) {
         return nullptr;
     }
 
-    void *origin_call;
-    if (DobbyHook(address, replacement, &origin_call) == RS_SUCCESS) {
-        return origin_call;
-    } else {
+    void *origin_call = nullptr;
+    void *handle = shadowhook_hook_func_addr(address, replacement, &origin_call);
+    if (handle == nullptr || origin_call == nullptr) {
+        LOGE("shadowhook_hook_func_addr failed for %p (handle=%p, stub=%p)", address, handle, origin_call);
+        if (handle != nullptr) shadowhook_unhook(origin_call);
         return nullptr;
     }
+    return origin_call;
 }
 
 bool InlineUnhooker(void *func) {
-    return DobbyDestroy(func) == RT_SUCCESS;
+    return shadowhook_unhook(func) == 0;
 }
 
 extern "C"
@@ -149,6 +153,14 @@ JNI_OnLoad(JavaVM *vm, void *) {
         }
 
         NativeCore::init(static_cast<int>(api_level));
+    }
+
+    // ShadowHook 初始化：UNIQUE 模式（每个目标地址只挂一个 hook，确定性最好）。
+    // debuggable=false：与注入场景一致。
+    if (shadowhook_init(SHADOWHOOK_MODE_UNIQUE, false) != 0) {
+        LOGE("shadowhook_init failed");
+    } else {
+        LOGI("shadowhook ready (mode=%d)", shadowhook_get_mode());
     }
 
     lsplant::InitInfo initInfo{

@@ -22,8 +22,11 @@ get_filename_component(LSPLANT_JNI
         "${CMAKE_CURRENT_SOURCE_DIR}/../../../../lsplant/src/main/jni" ABSOLUTE)
 add_subdirectory(${LSPLANT_JNI} lsplant_build)
 
-# Dobby 走 prefab（静态归档，不产 libdobby.so）。
-find_package(dobby REQUIRED CONFIG)
+# ShadowHook 走 prefab（静态归档，不产 libshadowhook.so）。
+# 替换 Dobby 1.2：其内联 hook（relocate/trampoline）在部分自编 ART 的云 ROM 上产物损坏
+# （LSPlant Init 成功后，被 hook 的类加载函数首次执行即跳空/自旋），ShadowHook 的
+# 重定位器对现代 ARM64 序言兼容性更好。
+find_package(shadowhook REQUIRED CONFIG)
 
 include_directories(xz/linux/lib/xz xz/linux/include/linux xz/userspace)
 
@@ -41,7 +44,7 @@ add_library(songkit SHARED
 )
 
 # lsplant_static 以 PUBLIC 暴露 include/（lsplant.hpp）与 log，链接即得头路径。
-target_link_libraries(songkit log lsplant_static dobby::dobby)
+target_link_libraries(songkit log lsplant_static shadowhook::shadowhook)
 
 # 去特征：只导出 JNI 入口，隐藏一切静态链接进来的第三方符号（Dobby 的 DobbyHook/CodePatch、lsplant::Init/Hook 等）。
 # --exclude-libs,ALL 再保险一层，避免静态归档(.a)的符号被提升为导出。
