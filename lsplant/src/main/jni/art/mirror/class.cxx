@@ -63,8 +63,12 @@ private:
             "_ZN3art6mirror5Class9SetStatusENS_6HandleIS1_EENS_11ClassStatusEPNS_6ThreadE"_sym.hook->*[]
         <Backup auto backup>
         (TrivialHandle<Class> h, uint8_t new_status, Thread *self) static -> void {
+            static bool diag_first = true;
+            if (diag_first) { diag_first = false; LOGW("[diag] SetClassStatus first call status=%u", new_status); }
             if (new_status == initialized_status) {
                 BackupClassMethods(GetClassDef_(h.Get()), self);
+                static bool diag_bb = true;
+                if (diag_bb) { diag_bb = false; LOGW("[diag] SetClassStatus BackupClassMethods returned"); }
             }
             return backup(h, new_status, self);
         };
@@ -73,8 +77,12 @@ private:
         "_ZN3art6mirror5Class9SetStatusENS_6HandleIS1_EENS1_6StatusEPNS_6ThreadE"_sym.hook->*[]
         <Backup auto backup>
          (Handle<Class> h, int new_status, Thread *self) static -> void {
+            static bool diag_first = true;
+            if (diag_first) { diag_first = false; LOGW("[diag] SetStatus first call status=%d", new_status); }
             if (new_status == static_cast<int>(initialized_status)) {
                 BackupClassMethods(GetClassDef_(h.Get()), self);
+                static bool diag_bb = true;
+                if (diag_bb) { diag_bb = false; LOGW("[diag] SetStatus BackupClassMethods returned"); }
             }
             return backup(h, new_status, self);
         };
@@ -83,8 +91,12 @@ private:
         "_ZN3art6mirror5Class9SetStatusENS_6HandleIS1_EENS1_6StatusEPNS_6ThreadE"_sym.hook->*[]
         <Backup auto backup>
         (TrivialHandle<Class> h, uint32_t new_status, Thread *self) static -> void {
+            static bool diag_first = true;
+            if (diag_first) { diag_first = false; LOGW("[diag] TrivialSetStatus first call status=%u", new_status); }
             if (new_status == initialized_status) {
                 BackupClassMethods(GetClassDef_(h.Get()), self);
+                static bool diag_bb = true;
+                if (diag_bb) { diag_bb = false; LOGW("[diag] TrivialSetStatus BackupClassMethods returned"); }
             }
             return backup(h, new_status, self);
         };

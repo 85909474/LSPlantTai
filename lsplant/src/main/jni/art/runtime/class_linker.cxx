@@ -24,6 +24,8 @@ private:
         "_ZN3art11ClassLinker30ShouldUseInterpreterEntrypointEPNS_9ArtMethodEPKv"_sym.hook->*[]
         <Backup auto backup>
         (ArtMethod *art_method, const void *quick_code)static -> bool {
+            static bool diag_first = true;
+            if (diag_first) { diag_first = false; LOGW("[diag] ShouldUseInterpreterEntrypoint first call"); }
             if (quick_code != nullptr && IsHooked(art_method)) [[unlikely]] {
                 return false;
             }
@@ -129,16 +131,24 @@ private:
         "_ZN3art11ClassLinker22FixupStaticTrampolinesENS_6ObjPtrINS_6mirror5ClassEEE"_sym.hook->*[]
         <MemBackup auto backup>
         (ClassLinker *thiz, ObjPtr<mirror::Class> mirror_class) static -> void {
+            static bool diag_first = true;
+            if (diag_first) { diag_first = false; LOGW("[diag] FixupStaticTrampolines first call"); }
             backup(thiz, mirror_class);
             RestoreBackup(mirror_class->GetClassDef(), nullptr);
+            static bool diag_after = true;
+            if (diag_after) { diag_after = false; LOGW("[diag] FixupStaticTrampolines backup+restore returned"); }
         };
 
     inline static auto FixupStaticTrampolinesWithThread_ =
         "_ZN3art11ClassLinker22FixupStaticTrampolinesEPNS_6ThreadENS_6ObjPtrINS_6mirror5ClassEEE"_sym.hook->*[]
         <MemBackup auto backup>
         (ClassLinker *thiz, Thread *self, ObjPtr<mirror::Class> mirror_class) static -> void {
+            static bool diag_first = true;
+            if (diag_first) { diag_first = false; LOGW("[diag] FixupStaticTrampolinesWithThread first call"); }
             backup(thiz, self, mirror_class);
             RestoreBackup(mirror_class->GetClassDef(), self);
+            static bool diag_after = true;
+            if (diag_after) { diag_after = false; LOGW("[diag] FixupStaticTrampolinesWithThread backup+restore returned"); }
         };
 
     inline static auto FixupStaticTrampolinesRaw_ =

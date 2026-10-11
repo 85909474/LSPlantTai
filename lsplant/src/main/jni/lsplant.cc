@@ -258,22 +258,27 @@ bool InitNative(JNIEnv *env, const HookHandler &handler) {
         return false;
     }
     UpdateTrampoline(ArtMethod::GetEntryPointOffset());
+    LOGW("[diag] init: ArtMethod ok");
     if (!Thread::Init(handler)) {
         LOGE("Failed to init thread");
         return false;
     }
+    LOGW("[diag] init: Thread ok");
     if (!Class::Init(handler)) {
         LOGE("Failed to init mirror class");
         return false;
     }
+    LOGW("[diag] init: Class ok (SetStatus hooks installed)");
     if (!Runtime::Init(handler)) {
         LOGE("Failed to init runtime");
         return false;
     }
+    LOGW("[diag] init: Runtime ok");
     if (!ClassLinker::Init(env, handler)) {
         LOGE("Failed to init class linker");
         return false;
     }
+    LOGW("[diag] init: ClassLinker ok (SetStatus/FixupTrampolines/RegisterNative hooks installed)");
     if (!ScopedSuspendAll::Init(handler)) {
         LOGE("Failed to init scoped suspend all");
         return false;
